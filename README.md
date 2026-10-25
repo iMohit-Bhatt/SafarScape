@@ -62,11 +62,22 @@ tests/unit, tests/e2e  Vitest and Playwright suites
 
 **Conversion rate** = leads created in the period that are now *Converted* ÷ all leads created in the period.
 
+## Supabase
+
+The production database is the Supabase project **safarscape** (region South Asia / Mumbai, ref `qovqloshcuvaeyxjhmqw`).
+
+- Schema is already applied (`supabase/schema.sql`, generated from `drizzle/0000_init.sql`) and recorded as migrated, so the app won't try to re-create tables.
+- The public Data API is off and row-level security is on for every table; the app connects to Postgres directly as the owner role.
+- `.env.local` holds the connection string with a `YOUR-PASSWORD` placeholder: paste the database password there (lost it? Supabase → Project Settings → Database → Reset database password).
+- Set `SEED_ADMIN_PASSWORD` before the first start — the app refuses to create staff accounts with the demo password on a real database. The first start fills the empty database with the starter catalogue and staff accounts.
+- Use the **session pooler** (port 5432) locally and on servers; use the **transaction pooler** (port 6543) on serverless hosts like Vercel.
+- `TEST_POSTGRES_URL=… npm run test:postgres` runs an integration check against any disposable Postgres database — don't point it at production (it adds a test enquiry).
+
 ## Deploying
 
 Any Node host works (Vercel, Render, Railway, a VPS). For Vercel:
 
-1. Create a Postgres database (Neon or Supabase) and set `DATABASE_URL`.
+1. Set `DATABASE_URL` to the Supabase **transaction pooler** string (port 6543, see above).
 2. Set `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, and optionally Turnstile, GA4 and Meta Pixel keys (see `.env.example`).
 3. Set `SEED_ADMIN_PASSWORD` for the first boot (or sign in and change passwords immediately), then set `SEED_DEMO_LEADS=false` / delete the demo content.
 4. Deploy. Migrations run on first request.

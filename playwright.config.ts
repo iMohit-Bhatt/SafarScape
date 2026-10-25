@@ -30,7 +30,8 @@ export default defineConfig({
         timeout: 120_000,
         reuseExistingServer: false,
         env: {
-          DATABASE_URL: "pglite://memory",
+          DATABASE_URL: process.env.E2E_DATABASE_URL ?? "pglite://memory",
+          SEED_ALLOW_DEMO_PASSWORD: "true", // disposable test databases only
           EMAIL_PROVIDER: "outbox",
           ENQUIRY_RATE_LIMIT: "1000",
           NEXT_PUBLIC_SITE_URL: baseURL,

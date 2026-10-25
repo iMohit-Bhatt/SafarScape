@@ -36,7 +36,16 @@ export async function seedIfEmpty(db: DB, opts: { leads?: boolean } = {}) {
 }
 
 export async function seed(db: DB, { leads = process.env.SEED_DEMO_LEADS !== "false" }: { leads?: boolean } = {}) {
-  const hash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || DEMO_PASSWORD, 10);
+  const url = process.env.DATABASE_URL ?? "";
+  const realDb = url.startsWith("postgres://") || url.startsWith("postgresql://");
+  const chosen = process.env.SEED_ADMIN_PASSWORD;
+  if (realDb && process.env.SEED_ALLOW_DEMO_PASSWORD !== "true" && (!chosen || chosen.length < 10 || chosen === DEMO_PASSWORD)) {
+    // Never create staff accounts with the publicly documented demo password on a real database.
+    throw new Error(
+      "SEED_ADMIN_PASSWORD must be set (10+ characters, not the demo password) before the first start on a real Postgres database.",
+    );
+  }
+  const hash = await bcrypt.hash(chosen || DEMO_PASSWORD, 10);
   const staff = await db
     .insert(s.users)
     .values(demoStaff.map((u) => ({ ...u, passwordHash: hash, status: "active" as const })))

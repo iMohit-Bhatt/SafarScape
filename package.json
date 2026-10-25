@@ -14,7 +14,8 @@
     "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e",
     "db:generate": "drizzle-kit generate",
     "db:reset": "rm -rf .data/pglite",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "test:postgres": "vitest run --config vitest.postgres.config.mts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.11",
